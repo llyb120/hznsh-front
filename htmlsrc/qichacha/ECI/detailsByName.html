@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 企查查 - 公司详情 </title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <link rel="stylesheet" href="/static/htmlcss/qccStyle.css">
+    <script>
+        var keyNoPromise = $.Deferred();
+        var COMPANY_NAME =  decodeURI(getParam("keyWord"));
+        var pageFrom = getParam("from");
+        var CUS_ID=  decodeURI(getParam("cusId"));
+        var COMPANY_KEY_NO = getParam("keyNo") || "";
+        var BOOTSTRAP_INDEX_FILED = {
+            title: '序号',
+            align: 'center',
+            setWidth: 40,
+            formatter: function(value, row, index) {
+                return index + 1;
+            }
+        };
+        // 首次加载忽略滚动字典
+        var fixOnDataLoadObj = {};
+        // 锚点
+        var scrollToElm = function (elmId) {
+            if(fixOnDataLoadObj[elmId] === undefined){
+                fixOnDataLoadObj[elmId] = true;
+            }else{
+                var container = $('body');
+                var scrollTo = $('#'+elmId);
+                // 当被隐藏的时候，滚动显示出来
+                if(scrollTo.offset().top < 0){
+                    var fixTop = 0;
+                    if(container.scrollTop() > 120){
+                        fixTop = 43;
+                    }
+                    container.scrollTop(scrollTo.offset().top - container.offset().top + container.scrollTop() - fixTop);
+                }
+            }
+        };
+        var qccNoDataFillFun = function (row) {
+            for(var key in row){
+                if(!row[key]){
+                    row[key] = " - ";
+                }
+            }
+        };
+        var fixOnDataLoad = function (elmId, data, fixFun) {
+            if(data && (data.total && data.total > 0 || data.rows.length > 0)){
+                var handle = $("a[data-href='#"+elmId+"']");
+                if(!handle.hasClass("loaded")){
+                    var count = data.total ? data.total : data.total = data.rows.length & data.rows.length;
+                    handle.append("&nbsp;"+count);
+                    handle.removeClass("disabled").addClass("loaded");
+                    $("#"+elmId+"-count").html(count);
+                }
+                scrollToElm(elmId);
+            }
+            if(data.rows && data.rows.length>0){
+                data.rows.forEach(function (row) {
+                    if(fixFun && typeof fixFun == "function"){
+                        fixFun(row);
+                    }
+                    qccNoDataFillFun(row);
+                });
+            }
+        };
+    </script>
+</head>
+<body>
+<div id="content">
+    <div id="dataList">
+        <div class="qcc-detail-inner col-xs-10" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist" style="background: #fff">
+                <li role="presentation" class="active"><a href="#base" id="base-tab" role="tab" data-toggle="tab" data-controls="base" aria-expanded="true">基本信息</a></li>
+                <li role="presentation" class="hide"><a href="#susong" role="tab" id="susong-tab" data-toggle="tab" data-controls="susong" title="双击展开/关闭全部">法律诉讼</a></li>
+                <!--<li role="presentation" class=""><a href="#run" role="tab" id="run-tab" data-toggle="tab" data-controls="run">经营状况</a></li>-->
+                <li role="presentation" class="hide"><a href="#fengxian" role="tab" id="fengxian-tab" data-toggle="tab" data-controls="fengxian">经营风险</a></li>
+                <!--<li role="presentation" class=""><a href="#report" role="tab" id="report-tab" data-toggle="tab" data-controls="report">企业发展</a></li>-->
+                <!--<li role="presentation" class=""><a href="#assets" role="tab" id="assets-tab" data-toggle="tab" data-controls="assets">知识产权</a></li>-->
+                <li role="presentation" class="hide"><a href="#history" role="tab" id="history-tab" data-toggle="tab" data-controls="history">历史信息</a></li>
+                <li class="pull-right hide lab-hide">
+                    <a href="javascript:;" class="btn" title="全屏" id="fullscreenBtn" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-resize-full"></i></a>
+                </li>
+
+                <li class="pull-right hide qcc-com-info-wrap">
+                    <a href="javascript:;" target="_blank" class="btn" id="qcc-com-info" title="企查查官网信息" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-cloud"></i></a>
+                </li>
+                <li class="pull-right hide lab-hide">
+                    <a href="javascript:;" class="btn" title="行内信息" id="com-info" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-link"></i></a>
+                </li>
+                <li class="pull-right hide lab-hide">
+                    <a href="javascript:;" class="btn" id="change-com" title="切换公司" style="background: orange;color: #fff;" ><i class="
+                glyphicon glyphicon-pencil"></i></a>
+                </li>
+                <li style="float: right;" class="eci-toolbar"><a href="javascript:;" class="btn" id="updateBtn" title="更新当前模块数据" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-refresh"></i><span>&nbsp;&nbsp;更新当前模块</span></a></li>
+
+                <li class="pull-right export-fengxian-wrap" style="display: none">
+                    <a href="javascript:;" class="btn" title="导出企查查风险" id="export-fengxian" style="background: orange;color: #fff;" ><i class="glyphicon glyphicon-floppy-disk"></i></a>
+                </li>
+
+            </ul>
+            <script>
+                if(pageFrom == "qualCus"){
+                    $("#fengxian-tab").parent("li").removeClass("hide");
+                }else{
+                    $("#history-tab, #fengxian-tab, #susong-tab").parent("li").removeClass("hide");
+                }
+            </script>
+            <div id="qcc-detail-content" class="tab-content" style="padding-top: 10px;">
+                <!--#include file="./detailsByName_1.html"-->
+                <!--#include file="./detailsByName_2.html"-->
+                <!--##include file="./detailsByName_3.html"-->
+                <!--#include file="./detailsByName_4.html"-->
+                <!--##include file="./detailsByName_5.html"-->
+                <!--##include file="./detailsByName_6.html"-->
+                <!--#include file="./detailsByName_7.html"-->
+            </div>
+        </div>
+        <!--#include file="./rightSide.html" -->
+        <div class="goup-container" style="display: none">
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/jquery.goup.min.js"></script>
+
+<script>
+    // 回到顶部
+    $.goup({
+        goupSpeed: 100,
+        bottomOffset: 50,
+        containerColor: "#ffa500",
+        locationOffset: 100
+    });
+    // 滚动页面后固定顶部tab栏
+    $("html,body").scroll(function () {
+        if($(this).scrollTop() > $('.data-tab:visible').height()){
+            $("#myTabs").width($("#qcc-detail-content").width());
+            $("#myTabs").addClass("fixed");
+            $('.qcc-detail-inner').css("padding-top","37.5px");
+        }else{
+            $("#myTabs").removeClass("fixed");
+            $('.qcc-detail-inner').css("padding-top","0");
+        }
+    });
+    // 触发锚点
+    $(".data-tab a").click(function () {
+        if($(this).hasClass("disabled")){
+            return false;
+        }else{
+            var target = $(this).data("href");
+            var targetTop = $(target).offset().top;
+            // var fixTop = targetTop > 150 ? 76 : 0;
+            var fixTop = $(this).closest('.data-tab').height() + 37.4;
+            $("body,html").animate({scrollTop: targetTop - 37.4})
+        }
+    });
+    // 折叠&&展开子模块，【仅[法律诉讼]模块支持】
+    $("#myTabs li a").dblclick(function () {
+        $(this).toggleClass("switch");
+        if($(this).hasClass("switch")){
+            $($(this).attr("href")).find(".panel-collapse").collapse("hide");
+        }else{
+            $($(this).attr("href")).find(".panel-collapse").collapse("show");
+        }
+        return false;
+    });
+
+    // 更新模块数据
+    $("#updateBtn").click(function () {
+        var that = $(this);
+        that.addClass("disabled");
+        if(that.hasClass("disabled") == false){
+            return false;
+        }
+        layer.confirm("确定更新当前模块？",function(){
+            that.removeClass("disabled");
+            var loadingIndex;
+            layer.msg("指令发送中...", function () {
+                loadingIndex = layer.load();
+                var currBlockIndex = $("#myTabs li.active").index();
+                var sign;
+                if(currBlockIndex === 0){
+                    sign = "01";
+                }else if(currBlockIndex === 1){
+                    sign = "02";
+                }else if(currBlockIndex === 2){
+                    sign = "03";
+                }else if(currBlockIndex === 3){
+                    sign = "05";
+                }
+                if(sign == undefined){
+                    layer.msg("更新指令内容为空！");
+                    return
+                }
+                $.ajax({
+                    url: remoteApi.qccUpdateQccData,
+                    data: {
+                        fullName: COMPANY_NAME,
+                        sign: sign
+                    },
+                    success: function (res) {
+                        if(res.success){
+                            layer.msg("指令发送成功，请等待相关服务处理！");
+                        }else{
+                            layer.msg("指令发送失败！" + res.errMessage);
+                        }
+                        layer.close(loadingIndex);
+                    }
+                });
+            });
+        },function () {
+            that.removeClass("disabled");
+        });
+    });
+
+    $("#myTabs li a[data-controls]").click(function () {
+        var blockName = $(this).data("controls");
+        var exportFengXianBtn  = $(".export-fengxian-wrap");
+        exportFengXianBtn.hide();
+        if(blockName=='susong' && loadBlock2Status === false){
+            // 点击【法律诉讼】模块后加载此模块数据
+            loadBlock2();
+        }else if(blockName=='fengxian'){
+            if(loadBlock4Status === false){
+                // 点击【经营风险】模块后加载此模块数据
+                loadBlock4();
+            }else{
+                if(exportFengXianBtn.hasClass("haveException")){
+                    $(".export-fengxian-wrap").show();
+                }
+            }
+        }else if(blockName=='history' && loadBlock7Status === false){
+            // 点击【历史信息】模块后加载此模块数据
+            loadBlock7();
+        }
+        $(".goup-container").trigger("click");
+    });
+    $("#export-fengxian").click(function () {
+        formRequest({
+            url: remoteOrigin + "/link/FileController/qccFengXianExport",
+            data: {
+                fullName: COMPANY_NAME
+            }
+        })
+    });
+
+    if($.cookie("spec")){
+        $("#updateBtn").find("span").hide();
+        // 全屏
+        $(".lab-hide").removeClass("hide");
+        $("#fullscreenBtn").click(function () {
+            changeScreen("#fullscreenBtn");
+        });
+        function changeScreen(dom){
+            if(!isFullScreen()){
+                $(dom).html('<i class="glyphicon glyphicon-resize-small"></i>');
+                launchFullScreen($('html')[0]);
+            }else{
+                $(dom).html('<i class="glyphicon glyphicon-resize-full"></i>');
+                exitFullScreen();
+            }
+        }
+        // 根据输入公司名切换公司
+        $("#change-com").click(function () {
+            layer.prompt({title: '请输入公司名！', formType: 3}, function(val, index){
+                var dom = top.$("#iframe-content-wrap .active iframe");
+                var srcStr = dom.attr("src");
+                srcStr = putUrlParam("keyWord", formatBrackets(val), srcStr);
+                dom.attr("src", srcStr);
+            });
+        });
+        // 行内的公司信息
+        $("#com-info").attr("tab-href", hrefUrl.comClientInfo+CUS_ID).attr("tab-title", "行内 - " + COMPANY_NAME);
+        // 外链企查查官网查询
+        $.when(keyNoPromise).then(function (keyNo) {
+            $(".qcc-com-info-wrap").removeClass("hide");
+            $("#qcc-com-info").attr("href", "https://www.qichacha.com/firm_"+keyNo+".html");
+        });
+    }
+</script>
+<script src="/static/htmljs/qcc.custom.js"></script>
+</body>
+</html>

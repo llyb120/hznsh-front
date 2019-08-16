@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>贷前管理 - 客户资质查询</title>
+    <!--#include file="/htmlsrc/header.html" -->
+</head>
+<body>
+<div id="content">
+    <div class="" id="panel-form">
+    </div>
+    <div class="batch-operation">
+        <a type="button" class="btn btn-success handleAdd" href="javascript:;" tab-href="/htmlsrc/preLendingCollect/qualCusList.add.html" tab-title="新增资质客户" >新增</a>
+    </div>
+    <div id="dataList">
+    </div>
+</div>
+<script>
+    $("#panel-form").html(panelFormRender3({
+        col:3,
+        panelTitle:'筛选查询',
+        list:[
+            { label :'目标客户名称', prop:'CUS_NAME' },
+            { label :'辅助公司名', prop:'COMPANY_NAME'}
+        ],
+        data:{ } // 默认值
+    }));
+
+    function onInfront() {
+        if($("#dataList table").length){
+            layuiTableReload({
+                where: $("[name=form-search]").serialize()
+            });
+            return;
+        }
+        laytableRender({
+            // showIndex: true,
+            url: remoteOrigin + "/api/auto/QualCus/getDList",
+            cols: [
+                [
+                    { title:'操作', templet: function (data,index) {
+                            var cusName = formatBrackets(data.CUS_NAME);
+                            var str = '<a href="javascript:;" class="btn btn-default btn-xs" tab-title="资质客户关联方 - '+cusName+'" tab-href="/htmlsrc/preLendingCollect/qualCusLinkCus.html?id='+data.ID+'">关联方</a>&nbsp;';
+                            if(data["CUS_TYPE"] == "01"){
+                                str += '<a href="javascript:;" class="btn btn-default btn-xs" tab-title="企查查 - '+cusName+'" tab-href="'+hrefUrl.ECIdetail+cusName+'&from=qualCus" tab-id="ECIdetail-Qual'+cusName+'">经营风险</a>';
+                            }
+                            return  str;
+                        }, fixed: 'right'},
+                    { title:'客户名称', field: "CUS_NAME"},
+                    { title:'辅助公司名称', field: "COMPANY_NAME"},
+                    { title:"操作人", field: "USER_TRUE_NAME"},
+                    { title:'添加时间', field: "ADD_TIME"}
+                    // ,{ title:"主管机构", field: ""}
+                ]
+            ]
+        });
+    }
+
+    onInfront();
+</script>
+</body>
+</html>

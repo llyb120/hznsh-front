@@ -1,0 +1,292 @@
+<div role="tabpanel" class="tab-pane" id="susong" aria-labelledby="susong-tab">
+    <div class="data-tab">
+        <a class="btn btn-default disabled" data-href="#susong1">开庭公告</a>
+        <a class="btn btn-default disabled" data-href="#susong2">裁判文书</a>
+        <a class="btn btn-default disabled" data-href="#susong3">法院公告</a>
+        <a class="btn btn-default disabled" data-href="#susong4">被执行人</a>
+        <a class="btn btn-default disabled" data-href="#susong5">失信信息</a>
+        <a class="btn btn-default disabled" data-href="#susong6">司法协助</a>
+    </div>
+    <div class="panel-qcc" id="susong1">
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong1-body">
+                开庭公告
+                <b id="susong1-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong1-body">
+        </div>
+    </div>
+    <div class="panel-qcc" id="susong2">
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong2-body">
+                裁判文书
+                <b id="susong2-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong2-body">
+        </div>
+    </div>
+    <div class="panel-qcc" id="susong3">
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong3-body">
+                法院公告
+                <b id="susong3-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong3-body">
+        </div>
+    </div>
+    <div class="panel-qcc" id="susong4">
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong4-body">
+                被执行人信息
+                <b id="susong4-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong4-body">
+        </div>
+    </div>
+    <div class="panel-qcc" id="susong5">
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong5-body">
+                失信被执行人
+                <b id="susong5-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong5-body">
+        </div>
+    </div>
+    <div class="panel-qcc" id="susong6">
+        <div class="panel-qcc-heading">
+            <a role="button" data-toggle="collapse" href="#susong6-body">
+                司法协助
+                <b id="susong6-count">0</b>
+            </a>
+        </div>
+        <div class="panel-qcc-body panel-collapse collapse in" id="susong6-body">
+        </div>
+    </div>
+</div>
+
+<script type="text/html" id="susong2_toolbar">
+    <div class="layui-toolbar">
+    <a href="javascript:;" class="susong2_toolbar" data-val="{{d.Id}}">{{d.CaseName}}</a>
+    </div>
+</script>
+<script type="text/html" id="susong3_toolbar">
+    <div class="layui-toolbar">
+    <a href="javascript:;" class="btn btn-default susong3_toolbar" data-val="{{d.Id}}">详情</a>
+    </div>
+</script>
+<script type="text/html" id="susong4_toolbar">
+    <a href="javascript:;" class="susong4_toolbar" data-val="{{d.Id}}">{{d.AnNo}}</a>
+</script>
+<script type="text/html" id="susong5_toolbar">
+    <div class="layui-toolbar">
+        <a href="javascript:;" class="susong5_toolbar" data-val="{{d.Id}}">{{d.AnNo}}</a>
+    </div>
+</script>
+<script type="text/html" id="susong6_toolbar">
+    <a href="javascript:;" class="susong6_toolbar">{{d.ExecutionNoticeNum}}</a>
+</script>
+<script>
+    // 模块数据是否加载标识
+    var loadBlock2Status = false;
+    // 加载模块数据
+    function loadBlock2() {
+        loadBlock2Status = true;
+        // 开庭公告
+        laytableRender({
+            id: "susong1-body",
+            autoShift: false,
+            url: remoteApi.qccCourtAnnoSearchCourtNotice+"?fullName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    { title:'案号', templet: function (row) {
+                            return '<a href="javascript:;" tab-title="开庭公告详情" tab-href="/htmlsrc/qichacha/CourtAnno/GetCourtNoticeInfo.html?id='+row["Id"]+'">'+row["CaseNo"]+'</a>';
+                        }
+                    },
+                    {title:"开庭时间",field:"LiAnDate", setWidth: 90},
+                    {title:"案由",field:"CaseReason", setWidth: 110},
+                    {title:"公诉人/原告/上诉人/申请",field:"ProsecutorList"},
+                    {title:"被告人/被告/被上诉人/被申请人人",field:"DefendantList"}
+
+                ]
+            ],
+            onData:function (data) {
+                fixOnDataLoad("susong1",data, function (row) {
+                    row["DefendantList"] = (row.DefendantList || "").replace(/\\t/gm, "、");
+                });
+            }
+        });
+
+        // 裁判文书
+        var susong2DataList = [];
+        laytableRender({
+            id: "susong2-body",
+            autoShift: false,
+            url: remoteApi.qccJudgeDocSearchJudgmentDoc+"?fullName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    { title:'裁判文书名字', templet: "#susong2_toolbar", setWidth: 120},
+                    {title:"案由",field:"CaseReason"},
+                    // 案件金额
+                    {title:"发布时间",field:"SubmitDate", setWidth: 90 },
+                    {title:"案号",field:"CaseNo"},
+                    {title:"案件身份",field:"CaseRole"},
+                    {title:"执行法院",field:"Court"}
+                ]
+            ],
+            onData:function (data) {
+                fixOnDataLoad("susong2",data, function (row) {
+                    var CaseRole = JSON.parse(row["CaseRole"]);
+                    var roleText = "";
+                    CaseRole.forEach(function (role) {
+                        roleText += role["R"] +"：" + role["P"] + "；<br/>";
+                    });
+                    row["SubmitDate"] = subDateStr(row["SubmitDate"]);
+                    row["CaseRole"] = roleText;
+                });
+            }
+        });
+
+        // 法院公告
+        laytableRender({
+            id: "susong3-body",
+            autoShift: false,
+            url: remoteApi.qccCourtNoticeSearchCourtAnnouncement+"?fullName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    {title:"被上诉人",field:"Party", setWidth: 420 },
+                    {title:"公告类型",field:"Category"},
+                    {title:"公告人",field:"Court"},
+                    {title:"刊登日期",field:"PublishedDate", setWidth: 90},
+                    { title:'内容', templet: "#susong3_toolbar"}
+                ]
+            ],
+            onData:function (data) {
+                fixOnDataLoad("susong3", data, function (row) {
+                    row["PublishedDate"] = subDateStr(row.PublishedDate);
+                });
+            }
+        });
+
+        var susong5Datalist = [];
+        // 失信信息
+        laytableRender({
+            id: "susong5-body",
+            autoShift: false,
+            url: remoteApi.qccCourtSearchShiXin+"?fullName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    // {title:'操作', templet: "#susong5_toolbar"},
+                    {title:"案号", templet: "#susong5_toolbar", field:"AnNo"},
+                    {title:"发布日期",field:"PublicDate"},
+                    {title:"执行法院",field:"ExecuteGov"},
+                    {title:"立案日期",field:"LiAnDate"},
+                    {title:"省份",field:"Province"}
+
+                ]
+            ],
+            onData:function (data) {
+                fixOnDataLoad("susong5", data, function (row) {
+                    row["LiAnDate"] = subDateStr(row.LiAnDate);
+                    row["PublicDate"] = subDateStr(row.PublicDate);
+                });
+                susong5Datalist = data.rows || [];
+            }
+        });
+        $(document).on("click", ".susong5_toolbar", function (){
+            var id = $(this).data("val");
+            addNavTab("qccSearchShiXin-"+id, "失信信息详情", "/htmlsrc/qichacha/Court/GetShiXinDetail.html?id="+id, susong5Datalist[$(this).closest("tr").data("index")]);
+            return false;
+        });
+
+        var susong4DataList = [];
+        // 执行信息
+        laytableRender({
+            id: "susong4-body",
+            autoShift: false,
+            url: remoteApi.qccCourtSearchZhiXing+"?fullName="+COMPANY_NAME,
+            cols: [
+                [
+                    BOOTSTRAP_INDEX_FILED,
+                    {title:"案号", templet: "#susong4_toolbar", field:"AnNo"},
+                    {title:"立案时间",field:"LiAnDate"},
+                    {title:"执行法院",field:"ExecuteGov"},
+                    {title:"执行标的",field:"BiaoDi"}
+                ]
+            ],
+            onData:function (data) {
+                (data.rows || []).forEach(function (row) {
+                    row["LiAnDate"] = subDateStr(row.LiAnDate);
+                });
+                susong4DataList = data.rows;
+                fixOnDataLoad("susong4", data);
+            }
+        });
+        $(document).on("click", ".susong4_toolbar", function (){
+            var id = $(this).data("val");
+            addNavTab("qccSearchZhiXing-"+id, "执行信息详情", "/htmlsrc/qichacha/Court/GetZhiXingDetail.html?id="+id, susong4DataList[$(this).closest("tr").data("index")]);
+            return false;
+        });
+
+        var JudicialAssistanceDataList = [];
+        // susong6-body 司法协助
+        $.ajax({
+            url: remoteApi.qccJudicialAssistanceGetJudicialAssistance+"?fullName="+COMPANY_NAME,
+            success: function (res) {
+                if(res.data && res.data.list && res.data.list.length > 0){
+                    var dataList = res.data.list || [];
+                    var count = dataList.length;
+                    $("a[data-href='#susong6']").removeClass("disabled").append("&nbsp;"+count);
+                    dataList.forEach(function (row) {
+                        qccNoDataFillFun(row);
+                    });
+                    JudicialAssistanceDataList = dataList;
+                    $("#susong6-count").html(count);
+                }
+                laytableRender({
+                    id: "susong6-body",
+                    page: false,
+                    cols: [
+                        [
+                            BOOTSTRAP_INDEX_FILED,
+                            {title:"被执行人",field:"ExecutedBy" },
+                            {title:"冻结股权标的企业",field:"Name"},
+                            {title:"股权数额",field:"EquityAmount" },
+                            {title:"执行通知书文号", templet: "#susong6_toolbar",field:"ExecutionNoticeNum" },
+                            {title:"执行法院",field:"EnforcementCourt" },
+                            {title:"类型 | 状态",field:"Status" }
+                        ]
+                    ],
+                    data: JudicialAssistanceDataList
+                });
+            }
+        });
+
+        $(document).on("click", ".susong6_toolbar", function (){
+            var data = JudicialAssistanceDataList[$(this).closest("tr").data("index")];
+            var id = data["ExecutionNoticeNum"]+data["ExecutedBy"]+data["Status"];
+            addNavTab("qccJudicialAssistanceGetJudicialAssistance-"+id, "司法协助详情", "/htmlsrc/qichacha/JudicialAssistance/GetJudicialAssistanceDetail.html?id="+id, data);
+            return false;
+        });
+
+    }
+
+    $(document).on("click", ".susong2_toolbar", function (){
+        var id = $(this).data("val");
+        addNavTab("裁判文书详情", "/htmlsrc/qichacha/JudgeDoc/GetJudgementDetail.html?id="+id);
+        return false;
+    });
+    $(document).on("click", ".susong3_toolbar", function (){
+        var id = $(this).data("val");
+        addNavTab("法院公告详细信息", "/htmlsrc/qichacha/CourtNotice/SearchCourtAnnouncementDetail.html?id="+id);
+        return false;
+    });
+</script>

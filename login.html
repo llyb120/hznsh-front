@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> 登录 </title>
+    <!--<link rel="stylesheet" href="/static/vendor/bootcss/css/bootstrap.min.css">-->
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="/static/vendor/bootcss/js/html5shiv.min.js"></script>
+    <script src="/static/vendor/bootcss/js/respond.min.js"></script>
+    <![endif]-->
+    <script src="/static/vendor/jquery/jquery.js"></script>
+    <style>
+    /*html,body{height:100%}*/
+    </style>
+    <!--<link rel="stylesheet" href="/static/htmlcss/style.css">-->
+    <link rel="stylesheet" href="/static/htmlcss/star.css">
+    <link rel="stylesheet" href="/static/htmlcss/bstyle.css">
+    <link rel="stylesheet" href="/static/htmlcss/login.css">
+
+</head>
+<body>
+
+    <div id="star">
+
+    </div>
+    <!--<div id='stars'></div>-->
+    <!--<div id='stars2'></div>-->
+    <!--<div id='stars3'></div>-->
+    <div id='title' style="position: relative;z-index: 2;">
+        <span class="tle">
+        辅助管理系统
+        </span>
+
+        <div style="margin-top: 10px">
+            <form autocomplete="off" name="form">
+                <input type="text" class="btx" placeholder="请输入账户名" style="" id="username" name="username" >
+                <div></div>
+                <input type="password" class="btx" placeholder="请输入密码" style="margin-top: -40px;" id="password" name="password" >
+                <input type="hidden" name="server" value="main">
+                <div style="text-align: center;width: 200px;margin: 0 auto;margin-top: -35px" >
+                    <button type="submit">
+                        <span>登录</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="login-wrap" style="display: none;">
+    </div>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/vendor/validate/jquery.validate.min.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="./static/htmljs/store.js"></script>
+    <script>
+
+        $.get("/api/auto/sysvar/getDataVersion", function (res) {
+            if(res.errMessage != "请检查是否登录" && res.success){
+                location.href = "index3.html";
+            }
+        });
+
+        var form = $("form[name='form']");
+        form.validate({
+            rules: {
+                username: "required",
+                password: "required"
+            },
+            messages: {
+                username: "请输入您的名字",
+                password: "请输入您的密码"
+            },
+            submitHandler:function(){
+                if(form.valid()){
+                    getFetch(
+                        remoteApi.apiLogin
+                        ,(form.serialize())
+                        ,function(origin){
+                            console.log(origin)
+                            // return;
+                            var keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+                            if(keys) {
+                                for(var i = keys.length; i--;)
+                                    document.cookie = keys[i] + '=0;expires=' + new Date(0).toUTCString()
+                            };
+                            var user = origin.user;
+                            $.cookie('userName', user.trueName);
+                            $.cookie('userId', user.id);
+                            $.cookie('authorization', origin.token);
+                            store.set("lastLogin", new Date().getTime());
+                            store.set("$user", user);
+                            store.set("token", origin.token);
+                            location.href = "index3.html";
+                        }
+                    )
+                }
+            }
+        })
+    </script>
+</body>
+</html>
+
+<script>
+    $("[name=server]").val(top.SERVER || 'main');
+
+    show(document.getElementById("star"));
+
+    function show(dom) {
+        var p = p || {};
+
+        var s_c = p && p.star_count ? p.star_count : "100";
+        var s_d = p && p.star_depth ? p.star_depth : "250";
+        var fov = parseInt(s_d);
+
+        var numPoints = s_c;
+        dom = $(dom);
+        // dom.width = w_w;
+        // dom.height = w_h;
+        // dom.attr({ width: w_w, height: w_h});
+
+        function draw3Din2D(pointDiv, point3d, w, h) {
+            x3d = point3d[0];
+            y3d = point3d[1];
+            z3d = point3d[2];
+            var scale = 2 * fov / (fov + z3d);
+            var x2d = (x3d * scale) + w;
+            var y2d = (y3d * scale) + h;
+
+
+            // c.lineWidth = scale;
+            // c.strokeStyle = s_color;
+            // c.beginPath();
+            // c.moveTo(x2d, y2d);
+            // c.lineTo(x2d + scale, y2d);
+            // console.log(pointDiv)
+            // window.cubi = pointDiv
+            // window.x = x2d
+            // window.y = y2d
+            pointDiv.css({
+                left: x2d
+                , top: y2d
+                , width: scale
+                , height: scale
+            })
+            // c.stroke();
+
+        }
+
+        // var canvas = document.getElementById(c_id);
+        // var c = canvas.getContext('2d');
+
+        var points = [];
+        var pointDivs = [];
+
+        function initPoints() {
+            for (var i = 0; i < numPoints; i++) {
+                point = [(Math.random() * 400) - 200, (Math.random() * 400) - 200, (Math.random() * 400) - 200];
+                points.push(point);
+                var pointDiv = $("<div>").attr({
+                    "class": "point"
+                });
+                dom.append(pointDiv);
+                pointDivs.push(pointDiv);
+            }
+
+        }
+
+        function render() {
+            var w = $(window).width() / 2;
+            var h = $(window).height() / 2;
+            for (var i = 0; i < numPoints; i++) {
+                point3d = points[i];
+
+                z3d = point3d[2];
+                z3d -= 4;
+                if (z3d < -fov) z3d += 400;
+                point3d[2] = z3d;
+                draw3Din2D(pointDivs[i],point3d, w, h);
+            }
+        }
+
+        initPoints();
+        var loop = setInterval(function () {
+            render();
+        }, 50);
+
+    }
+</script>

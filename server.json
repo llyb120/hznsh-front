@@ -1,0 +1,10 @@
+[
+  {
+    "name": "main",
+    "server": "http://localhost:8099"
+  },
+  {
+    "name": "h2",
+    "server": "http://localhost"
+  }
+]

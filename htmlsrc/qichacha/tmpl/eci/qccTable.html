@@ -1,0 +1,35 @@
+<table class="table table-bordered qcc-table-1" border="1">
+    <tbody>
+    {{each cols value}}
+        {{if value[0].spec && value.length === 1 }}
+            <tr>
+                <td class="col-xs-2 text-right">
+                   {{value[0].title}}
+                </td>
+                <td class="col-xs-12 type-info" colspan="3">
+                    {{if value[0].handle}}
+                        <a href="javascript:;" id="handle{{value[0].field}}">{{data[value[0].field] || ' - '}}</a>
+                    {{else}}
+                        <%- data[value[0].field] || " - "; %>
+                    {{/if}}
+                </td>
+            </tr>
+        {{else}}
+            <tr>
+                {{each value val}}
+                    <td class="col-xs-2 text-right">
+                        {{val.title}}
+                    </td>
+                    <td class="col-xs-4 type-info">
+                        {{if val.handle}}
+                            <a href="javascript:;" id="handle{{val.field}}">{{data[val.field] || ' - '}}</a>
+                        {{else}}
+                            <%- data[val.field] || " - "; %>
+                        {{/if}}
+                    </td>
+                {{/each}}
+            </tr>
+        {{/if}}
+    {{/each}}
+    </tbody>
+</table>

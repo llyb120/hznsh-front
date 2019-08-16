@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 失信详情 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">失信详情</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+            <div role="tabpanel" class="tab-pane  active in" id="home" aria-labelledby="home-tab">
+                <!-- 基本信息展示 -->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/artTemplate/template-web.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
+<script>
+    function onPageRequest(data){
+        if(null == data || $.isEmptyObject(data)){
+            layErrorMsg("数据获取失败....")
+            $("#home").html("数据获取失败....")
+        }else{
+            $("#home").html(qccTableRender({
+                cols:[
+                    {title:"失信被执行人", field:"Name"},
+                    {title:"组织机构代码", field:"OrgNo"},
+                    {title:"执行法院", field:"ExecuteGov"},
+                    {title:"被执行人的履行情况", field:"ExecuteStatus"},
+                    {title:"省份", field:"Province"},
+                    {title:"执行依据文号", field:"ExecuteNo"},
+                    {title:"立案日期", field:"LiAnDate"},
+                    {title:"案号", field:"AnNo"},
+                    {title:"做出执行依据单位", field:"ExecuteUnite"},
+                    {title:"发布日期", field:"PublicDate"},
+                    {title:"失信被执行人行为具体情形", field:"ActionRemark"},
+                    {title:"生效法律文书确定的义务", field:"YiWu"},
+
+                    {title:"法定代表人或者负责人姓名", field:"OwnerName"},
+                    {title:"失信被执行人行为具体情形", field:"ActionRemark"},
+                    {title:"发布时间", field:"PublicDate"},
+                    {title:"年龄", field:"Age"},
+                    {title:"性别", field:"Sexy"},
+                    // {title:"记录更新时间", field:"UpdateDate"},
+                    {title:"已履行", field:"PerformedPart"},
+                    {title:"未履行", field:"UnperformPart"},
+                    // {title:"组织类型", field:"OrgType"},
+                    {title:"组织类型名称", field:"OrgTypeName"}
+                ],
+                data: data
+            }));
+        }
+    }
+</script>
+</body>
+</html>

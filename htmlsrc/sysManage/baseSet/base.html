@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>系统管理 - 系统设置</title>
+    <!--#include file="/htmlsrc/header.html" -->
+    <script src="/static/vendor/webUploader/webuploader.min.js"></script>
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" ><a href="#baseInfo" id="baseInfo-tab" role="tab" data-toggle="tab" aria-controls="baseInfo" aria-expanded="true">系统信息</a></li>
+                <li role="presentation" ><a href="#noticeRule" role="tab" id="noticeRule-tab" data-toggle="tab" aria-controls="noticeRule">消息规则</a></li>
+                <li role="presentation" ><a href="#taskProduceRule" id="taskProduceRule-tab" role="tab" data-toggle="tab" aria-controls="taskProduceRule" aria-expanded="true">任务产生规则</a></li>
+                <li role="presentation"><a href="#taskRule" role="tab" id="taskRule-tab" data-toggle="tab" aria-controls="taskRule">任务产生条件</a></li>
+                <li role="presentation"><a href="#qccNoticeRule" role="tab" id="qccNoticeRule-tab" data-toggle="tab" aria-controls="qccNoticeRule">企查查消息规则</a></li>
+                <li role="presentation"><a href="#qccTaskRule" role="tab" id="qccTaskRule-tab" data-toggle="tab" aria-controls="qccTaskRule">企查查任务产生条件</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div class="tab-pane fade" id="baseInfo" aria-labelledby="baseInfo-tab">
+
+                </div>
+                <div class="tab-pane fade" id="noticeRule" aria-labelledby="noticeRule-tab">
+                    <div class="panel-body">
+                        <style> #noticeRule .form-group{ padding: 10px 0; } </style>
+                        <form class="form-inline" name='noticeRuleForm' onsubmit="return checkSubmitForm()">
+                            <div id="noticeRuleForm">
+
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary submitRuleForm">确定</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="batch-operation tab-pane fade" id="taskRule" aria-labelledby="taskRule-tab">
+                    <div id="picker" style="" >
+                        <i class="glyphicon glyphicon-book"></i>
+                        导入任务产生规则
+                    </div>
+                    <button type="button" class="btn btn-success" id="ruleTaskDownload">
+                        导出任务产生规则
+                    </button>
+
+                    <div id="dataList">
+                    </div>
+                </div>
+                <!--<div class="tab-pane fade" id="taskRule" aria-labelledby="taskRule-tab">-->
+                    <!--<div class="panel-body">-->
+                        <!--<a href="javascript:;" class="btn btn-success btn-sm" id="addTaskRule"> 新增规则 </a>-->
+                    <!--</div>-->
+                    <!--<form id="taskRuleContent" name="taskRuleContent">-->
+
+                    <!--</form>-->
+                    <!--<div class="panel-body">-->
+                        <!--<div class="text-center">-->
+                            <!--<a href="javascript:;" class="btn btn-primary" id="submitRuleForm2">确定</a>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
+                <div class="tab-pane fade" id="qccNoticeRule" aria-labelledby="qccNoticeRule-tab">
+                    <div class="panel-body">
+                        <style> #qccNoticeRule .form-group{ padding: 10px 0; } </style>
+                        <form class="form-inline" name='qccNoticeRuleForm' onsubmit="return checkSubmitForm()">
+                            <div id="qccNoticeRuleForm">
+
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary submitRuleForm3">确定</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="qccTaskRule" aria-labelledby="qccTaskRule-tab">
+                    <div class="panel-body">
+                        <style> #qccTaskRule .form-group{ padding: 10px 0; } </style>
+                        <form class="form-inline" name='qccTaskRuleForm' onsubmit="return checkSubmitForm()">
+                            <div id="qccTaskRuleForm">
+
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary submitRuleForm3">确定</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="taskProduceRule" aria-labelledby="taskProduceRule-tab">
+                    <div class="panel-body">
+                        <style> #taskProduceRule .form-group{ padding: 10px 0; } </style>
+                        <form class="form-inline" name='taskProduceRuleForm' onsubmit="return checkSubmitForm()">
+                            <div id="taskProduceRuleForm">
+
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary submitTaskRuleForm">确定</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script >
+        onInitTable();
+        function onInitTable(){
+            if($("#dataList table").length){
+                layuiTableReload({
+                })
+                return;
+            }
+            // 基础显示字段
+            var cols = [
+                { title :'序号', field:'SERIAL_NUMBER' },
+                { title :'产品编号', field:'ACC__BIZ_TYPE' },
+                { title :'产品名称', field:'PRO_NAME' },
+                { title :'检查时间间隔（单位：天）', field:'ACC__LOAN_CHECK' },
+                { title :'贷款余额大于等于（单位：元）', field:'ACC__LOAN_AMOUNT_MIN' },
+                { title :'贷款余额小于等于（单位：元）', field:'ACC__LOAN_AMOUNT_MAX' },
+                { title :'预提醒时间（单位：天）', field:'ACC__EXPECT_DAY' }
+            ];
+            laytableRender({
+                cellMinWidth: 110,
+                url: "/api/excel/getList",
+                cols: [ cols ]
+                ,page:false,
+
+
+            });
+
+        }
+
+        function initupload() {
+
+            var uploader = WebUploader.create({
+                swf: '/static/vendor/webUploader/Uploader.swf',
+                server: remoteOrigin + "/api/excel/sysVar/import", //上传接口
+                pick: '#picker',
+                auto: true,
+                fileVal: 'file',
+                resize: false,
+                dupliacate: false
+            });
+
+            uploader.on("uploadBeforeSend", function(obj, data, headers){
+                layer.msg("导入中。。。");
+            })
+
+            uploader.on('uploadError', function (file, res) {
+                layer.msg("导入失败！");
+                uploader.removeFile(file)
+
+            });
+            // 单个文件上传成功
+            uploader.on('uploadSuccess', function (file, res) {
+                if(res.success){
+                    // var data = res.data;
+                    // layer.msg("数据总条数："+data.total+"，成功："+data.success+"条，失败："+data.failed +"条");
+                    layer.msg("导入成功！");
+                    onInitTable();
+                }else{
+                    layer.msg("导入失败！请选择正确的模板导入！");
+                }
+                uploader.removeFile(file)
+            })
+
+        }
+
+        initupload()
+
+        $("#ruleTaskDownload").click(function () {
+
+            location.href = remoteOrigin + "/link/FileController/ruleTask"
+
+        });
+        /*layui.use('table', function(){
+            var table = layui.table;
+
+            table.render({
+                elem: '#taskRuleContent'
+                ,url: remoteOrigin + "/api/auto/qcclog/getList"
+                ,cols: [[
+                    { field: 'addTime', title: '时间',},
+                    { field: 'username', title: '操作员' },
+                    { field: "type", title: "类型" },
+                    { field: "orderId", title: "指令ID" },
+                    { field: 'content', title: '消息内容', setWidth: 500 },
+                    { field: "dataId", title: "数据ID" }
+                ]]
+            });
+        });*/
+
+    </script>
+    <!--<script id="taskTmpl" type="text/html">-->
+
+        <!--<div class="panel-body rule-item">-->
+            <!--<div class="col-xs-6">-->
+                <!--<label class="col-sm-4 control-label">产品编号</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input type="text" class="form-control input-sm" name="BIZ_TYPE[]" value="{{BIZ_TYPE}}">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="col-xs-6">-->
+                <!--<label class="col-sm-4 control-label">贷款额度(元）</label>-->
+                <!--<div class="col-sm-8 form-group">-->
+                    <!--<div class="col-xs-5 row">-->
+                        <!--<input type="text" class="form-control input-sm" name="LOAN_AMOUNT_MIN[]" value="{{LOAN_AMOUNT_MIN}}" placeholder="最小额度">-->
+                    <!--</div>-->
+                    <!--<div class="col-xs-offset-1 col-xs-5 row">-->
+                        <!--<input type="text" class="form-control input-sm" name="LOAN_AMOUNT_MAX[]" value="{{LOAN_AMOUNT_MAX}}" placeholder="最大额度">-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="col-xs-6">-->
+                <!--<label class="col-sm-4 control-label">检查时间间隔（月）</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input type="text" class="form-control input-sm" name="LOAN_CHECK[]" value="{{LOAN_CHECK}}">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="col-xs-6">-->
+                <!--<label class="col-sm-4 control-label">预提醒时间（天）</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input type="text" class="form-control input-sm" name="EXPECT_DAY[]" value="{{EXPECT_DAY}}">-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--<div class="col-xs-12" style="padding:10px 0;">-->
+                <!--<a href="javscript:;" class="btn btn-xs btn-danger pull-right handleRemoveTaskRule" data-id="{{ID}}">删除</a>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</script>-->
+
+    <script id="noticeHtml" type="text/html">
+        <div class="form-group col-xs-12">
+            <div class="col-xs-8">
+                <label>规则{{noticeIndex}}</label>
+                {{ if noticeIndex == 10086 }}
+                    {{@ content.replace(/(x{4,})/g, function(a){
+                        var l = a.length - 3;
+                        return '<input type="text" name="MSG_RULE_'+noticeIndex+'_VAL'+l+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">';
+                    })}}
+                {{ else }}
+                    {{@ content.replace(/xxxxx/, '<input type="text" name="MSG_RULE_'+noticeIndex+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">')}}
+                {{ /if}}
+        </div>
+        <div class="col-xs-3 {{ noticeIndex < 6 ? '' : 'hide' }}"  >
+            <div class="input-group">
+                <select name="MSG_RULE_{{noticeIndex}}_TMPL" id="">
+                    <option value="">请选择</option>
+                    {{each msglist msgitem idex_msg}}
+                    <option value="{{msgitem.name}}">{{msgitem.name}}</option>
+                    {{/each}}
+                </select>
+                <!--<input type="text" class="form-control input-sm" name="MSG_RULE_{{noticeIndex}}_TMPL" readonly>-->
+                <!--<span class="input-group-btn">-->
+                    <!--<a class="btn btn-default btn-sm handleChoiceNoticeTmpl" type="button" data-for="MSG_RULE_{{noticeIndex}}_TMPL">消息模板</a>-->
+                <!--</span>-->
+            </div>
+        </div>
+        <div class="col-xs-1 {{ noticeIndex < 6 ||  16< noticeIndex ? '' : 'hide' }}">
+            <a href="javascript:;" class="btn btn-xs rule-on" id="MSG_RULE_{{noticeIndex}}_ON">已开启</a>
+        </div>
+
+        </div>
+    </script>
+
+    <!-- 企查查消息规则 -->
+    <script id="qccNoticeHtml" type="text/html">
+        <div class="form-group col-xs-12">
+            <div class="col-xs-8">
+                <label>规则{{qccNoticeIndex}}</label>
+                {{ if qccNoticeIndex == 10086 }}
+                    {{@ content.replace(/(x{4,})/g, function(a){
+                        var l = a.length - 3;
+                        return '<input type="text" name="QCC_MSG_RULE_'+qccNoticeIndex+'_VAL'+l+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">';
+                    })}}
+                {{ else }}
+                    {{@ content.replace(/xxxxx/, '<input type="text" name="QCC_MSG_RULE_'+qccNoticeIndex+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">')}}
+                {{ /if}}
+        </div>
+        
+        <!-- <div class="col-xs-3"  >
+            <div class="input-group">
+                <select name="QCC_MSG_RULE_{{qccNoticeIndex}}_TMPL" id="">
+                    <option value="">请选择</option>
+                    {{each msglist msgitem idex_msg}}
+                    <option value="{{msgitem.name}}">{{msgitem.name}}</option>
+                    {{/each}}
+                </select>
+                
+            </div>
+        </div> -->
+            <div class="col-xs-1">
+            <a href="javascript:;" class="btn btn-xs rule-on" id="QCC_MSG_RULE_{{qccNoticeIndex}}_ON">已开启</a>
+        </div>
+
+        </div>
+    </script>
+
+    <script id="qccTaskHtml" type="text/html">
+        <div class="form-group col-xs-12">
+            <div class="col-xs-8">
+                <label>规则{{qccTaskIndex}}</label>
+                {{ if qccTaskIndex == 10086 }}
+                    {{@ content.replace(/(x{4,})/g, function(a){
+                        var l = a.length - 3;
+                        return '<input type="text" name="QCC_TASK_MSG_RULE_'+qccTaskIndex+'_VAL'+l+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">';
+                    })}}
+                {{ else }}
+                    {{@ content.replace(/xxxxx/, '<input type="text" name="QCC_TASK_MSG_RULE_'+qccTaskIndex+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">')}}
+                {{ /if}}
+        </div>
+            <div class="col-xs-1">
+            <a href="javascript:;" class="btn btn-xs rule-on" id="QCC_TASK_MSG_RULE_{{qccTaskIndex}}_ON">已开启</a>
+        </div>
+
+        </div>
+    </script>
+
+    <!-- 任务产生规则 -->
+    <script id="taskProduceRuleHtml" type="text/html">
+        <div class="form-group col-xs-12">
+            <div class="col-xs-8">
+                <label>规则{{taskProduceRuleIndex}}</label>
+                {{ if taskProduceRuleIndex == 10086 }}
+                    {{@ content.replace(/(x{4,})/g, function(a){
+                        var l = a.length - 3;
+                        return '<input type="text" name="TASK_PRODUCE_RULE_'+taskProduceRuleIndex+'_VAL'+l+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">';
+                    })}}
+                {{ else }}
+                    {{@ content.replace(/xxxxx/, '<input type="text" name="TASK_PRODUCE_RULE_'+taskProduceRuleIndex+'" class="form-control input-sm" style="width: 50px;margin:0 5px;height:26px;">')}}
+                {{ /if}}
+        </div>
+
+            <div class="col-xs-1">
+            <a href="javascript:;" class="btn btn-xs rule-on" id="TASK_PRODUCE_RULE_{{taskProduceRuleIndex}}_ON">已开启</a>
+        </div>
+
+        </div>
+    </script>
+
+    <script>
+        var checkedRoles = []; // 已选角色
+        var panelType = getParam("panelType") || "baseInfo";
+        $('#myTabs a[href="#'+panelType+'"]').tab('show');
+        $('#myTabs a').click(function(){
+            rememberParam("panelType", $(this).attr("href").substring(1));
+            if("taskRule" == $(this).attr("href").substring(1)){
+                $("input[name='file']").parent().css("width","100%").css("height","100%")
+            }
+        })
+        $("#addTaskRule").click(function(){
+            $("#taskRuleContent").prepend(template("taskTmpl",{}))
+        })
+
+
+        $(document).on("click", ".handleRemoveTaskRule", function(){
+            var varMark = $(this).data("id");
+            var that = $(this);
+            if(varMark){
+                that.parents(".rule-item").remove();
+                // actConfirm(function(){
+                //     getRemoteData({
+                //         url: "/api/system/var/delete?key="+varMark + "_BIZ_TYPE,"+varMark + "_LOAN_AMOUNT_MIN,"+varMark + "_LOAN_AMOUNT_MAX,"+varMark + "_LOAN_CHECK,"+varMark + "_EXPECT_DAY",
+                //         callback: function(){
+                //             $("form[name='taskRuleContent']").submit();
+                //         }
+                //     })
+                // })
+            }else{
+                that.parents(".rule-item").remove();
+            }
+
+            return false;
+        })
+
+
+        var p1 = getFetch(remoteOrigin + '/api/auto/sysvar/getList');
+        var p2 = getFetch(remoteOrigin + "/api/auto/msgtmpl/getList",{size:1000});
+        $.when(p1,p2).then(function (a,b) {
+             var msglist = b[0].data.list;
+            var noticeRuleArr = [
+                '每月固定xxxxx日发送消息给客户',
+                '分期还本贷款，提前xxxxx天发送消息给客户',
+                '某笔贷款每增量导入一条还款记录，则发送消息给客户经理',
+                '贷款即将到期，提前xxxxx天发送预警消息给信贷主管/客户经理/客户',
+                '贷款发生逾期（检测贷款台账的利息逾期起始日或本金逾期起始日），xxxxx天内发送消息给信贷主管/客户经理/客户',
+                '待执行任务xxxxx天未执行，发送消息给信贷主管/客户经理',
+                '任务从发起日算起,xxxxx天未结束，发送消息给信贷主管/客户经理',
+                '流程节点待办，发送消息给经办用户',
+                '流程节点办理结束，发送消息给经办用户',
+                '诉讼时效3年内有效，提前xxxxx天发送消息给催收记录发起人（循环提醒）',
+                '每笔不良贷款在诉讼流程的诉前保全，诉前研究节点录入保全始末日期，在结束日期提前xxxxx天发送消息给诉讼记录发起人（循环提醒）',
+                '每笔不良贷款在诉讼流程的案件跟进节点录入开庭公告日期，在开庭公告日期提前xxxxx天发送消息给诉讼流程案件跟进节点经办人（循环提醒）',
+                ' 每笔不良贷款在诉讼流程的案件跟进节点录入判决公告日期、判决生效结束日期，如果该诉讼流程的判决生效，执行节点处于经办状态，则在判决生效结束日期提前xxxxx天发送消息给该节点经办人（循环提醒）',
+                '每笔不良贷款在抵债资产流程的省联社备案，收到批复节点录入评估报告生效日期、评估报告有效期结束日期、评估报告公告送达日期，如果该抵债资产流程的入账处理不是完结状态，则在评估报告有效期结束日期提前xxxxx天发送消息给该抵债资产记录发起人（循环提醒）',
+                '诉讼流程的法院立案节点设置xxxxx天有效，该节点未办理则每天提醒直至有效期结束',
+                '诉讼流程的缴费节点设置xxxxx天有效，该节点未办理则每天提醒直至有效期结束',
+                '对私客户提前xxxxx天提醒客户经理证件到期',
+                '对公客户提前xxxxx天提醒客记经理组织机构代码证年检日到期',
+                '检查按揭类贷款账户信息中的出证状态和购房合同约定交房日期，若出证状态为“未出证”且购房合同约定交房日期为空的，发送消息给管户经理',
+                '在出证状态为“未出证”且购房合同约定交房日期不为空时，在距离购房合同约定交房日期还有xxxxx天时发送消息给管户经理录入相关出证信息',
+                '每月28日上午xxxxx点发送预期短信'
+            ]
+            noticeRuleArr.forEach(function(item, index){
+                $("#noticeRuleForm").append(template("noticeHtml",{
+                    noticeIndex: index+1,
+                    content: item,
+                    msglist: msglist
+                }));
+            })
+
+            var qccNoticeRuleArr = [
+                "失信","被执行人","裁判文书","法院公告","开庭公告","司法拍卖","环保处罚","司法协助","经营异常"
+            ]
+
+            qccNoticeRuleArr = qccNoticeRuleArr.map((item,i)=>{
+                var content = "企业有新增<span style='color:red'>"+item+"</span>信息，对该企业每笔关联台帐所在支行行长/信贷主管/客户经理以及具有“总行企查查风险角色”的用户发送消息提醒";
+
+                $("#qccNoticeRuleForm").append(template("qccNoticeHtml",{
+                    qccNoticeIndex: i+1,
+                    content: content,
+                    msglist: msglist
+                }));
+
+                // $("#qccTaskRuleForm").append(template("qccTaskHtml",{
+                //     qccTaskIndex: i+1,
+                //     content: content,
+                //     msglist: msglist
+                // }));
+                
+            })
+
+            var qccNoticeRuleArr2 = [
+                "失信","被执行人","裁判文书","法院公告","开庭公告","司法拍卖","环保处罚","司法协助","经营异常"
+            ]
+            qccNoticeRuleArr2 = qccNoticeRuleArr2.map((item,i)=>{
+                var content = "企业有新增<span style='color:red'>"+item+"</span>信息，对该企业每笔关联台帐客户经理发送任务";
+
+
+                $("#qccTaskRuleForm").append(template("qccTaskHtml",{
+                    qccTaskIndex: i+1,
+                    content: content,
+                    msglist: msglist
+                }));
+                
+            })
+
+            // todo
+            var taskProduceRuleArr = [
+                '检查按揭类贷款账户信息中的出证状态、购房合同约定交房日期和未按时出证情况说明，若出证状态为“未出证”且购房合同约定交房日期对比当前日期已经超过xxxxx天且未按时出证情况说明为空，则产生贷后任务要求管户经理必须录入未按时出证情况说明',
+            ]
+            taskProduceRuleArr.forEach(function(item, index){
+                $("#taskProduceRuleForm").append(template("taskProduceRuleHtml",{
+                    taskProduceRuleIndex: index+1,
+                    content: item,
+                    msglist: msglist
+                }));
+            })
+
+
+
+            var origin = a[0].data;
+            origin = origin || {};
+            $("#baseInfo").html(panelFormRender3({
+                formName: 'baseInfo',
+                button: [
+                    {name: "确定", type: "submit"}
+                ],
+                list:[
+                    { prop: 'sys_name', label: '系统名称', width:12, labelWidth:2},
+                    { prop: 'sys_des', label: '系统用途' , type:'textarea', width:12, labelWidth:2},
+                    { prop: 'sys_default_role_ids', type: "hidden" },
+                    { prop: "msg_api_open", label:"是否启用短信网关", type:"checkbox",value:1 },
+                    { prop: "qcc_pq_api_open", label:"是否启用企查查跑批(法律诉讼，经营风险，每月1号，16号跑批一次，基本信息，企业图谱，历史信息每年2月，5月，8月，11月的一号跑批一次)", type:"checkbox",value:1 },
+                    { prop: "file_storage_engine", type: "radio", label:"文件存储引擎", vals:[
+                            {name:"linkapp私有云", val:"linkapp"}
+                            // {name:"文件存储alpha", val:"self"}
+                        ]},
+                    {prop:"ods_br_id", label: "信贷数据机构代码"},
+                    {prop:"qcc_url", label: "企查查接口地址"},
+                    {prop:"data_early_warning", label: "数据预警发送短信手机号码（多个用“,”分隔）"},
+                    {prop:"file_white_list", label: "文件格式白名单（多个用“,”分隔）"}
+                    // ,
+                    // { prop: 'sys_default_role', label: '默认角色', width:12, labelWidth:2, inputGroup:"选择角色",disabled:true}
+                ],
+                data: origin
+                , line: true
+            }));
+
+            var checkedRoleIds = (origin['sys_default_role_ids']||"").split(",");
+            var checkedRoleNames = (origin['sys_default_role']||'').split(",");
+            if(checkedRoleIds.length > 0 && origin['sys_default_role_ids']!=''){
+                checkedRoleIds.forEach(function(id, index){
+                    checkedRoles.push({
+                        id: id,
+                        name: checkedRoleNames[index] || ''
+                    })
+                })
+            }
+
+            // 设置基本信息
+            var form = $("form[name='baseInfo']");
+            $().ready(function() {
+                form.validate({
+                    rules: {
+                        'sys_name': "required"
+                    },
+                    submitHandler:function(){
+
+                         var myreg=/^[1][3,4,5,7,8][0-9]{9}$/;
+                        //  var pattern = new RegExp("[，,~'!@#￥$%^&*()-+_=:]"); 
+                        var reg = new RegExp("[~'!@#￥$%^&*()-+_=:]"); 
+                         var pattern = new RegExp("[，,]"); 
+                         var earlyWarning = $("[name='data_early_warning']").val().replace(/\s*/g,"");
+                         if(pattern.test(earlyWarning)){
+
+                            var arr = earlyWarning.split(pattern);
+                            for(var i=0;i<arr.length;i++){
+                                console.log("i="+arr[i])
+                                if (!myreg.test(+arr[i])) {
+                                    layer.msg("请输入正确的手机号码！");
+                                    return false;
+                                }
+                            }
+                         }else if(reg.test(earlyWarning)){
+                             layer.msg("请使用正确的分隔符！");
+                             return false;
+                         }else{
+                            if (!myreg.test(earlyWarning) && "" != earlyWarning) {
+                                layer.msg("请输入正确的手机号码！");
+                                return false;
+                            }
+                         }
+
+                        if(form.valid()){
+                            var _data = form.ghostsf_serialize();
+                                doIfDev(function () {
+                                    _data = _data.replace(/file_storage_engine=[^\&]*?/, "file_storage_engine=self")
+                                });
+                                postFetch(
+                                remoteOrigin + "/api/auto/sysvar/set"
+                                , _data
+                                , function () {
+                                    layer.msg("修改成功！");
+                                }
+                            )
+                        }
+                    }
+                })
+            });
+
+            var noticeRuleLength = 21;
+            while (noticeRuleLength-- > 1) {
+
+                var name = "MSG_RULE_"+noticeRuleLength;
+                var tmplName = name + "_TMPL";
+                $("[name="+tmplName+"]").val(origin[tmplName]);
+                // if(noticeRuleLength == 10){
+                //     // 多值，且n=2
+                //     for(var i=1;i<=2; i++){
+                //         var n = name + "_VAL"+i;
+                //         $("[name="+n+"]").val(origin[n]);
+                //     }
+                //     continue;
+                // }
+                $("[name="+name+"]").val(origin[name]);
+
+            }
+
+            var qccNoticeRuleLength = 10;
+            while (qccNoticeRuleLength-- > 1) {
+
+                var name = "QCC_MSG_RULE_"+qccNoticeRuleLength;
+                var tmplName = name + "_TMPL";
+                $("[name="+tmplName+"]").val(origin[tmplName]);
+        
+                $("[name="+name+"]").val(origin[name]);
+
+            }
+
+            var qccTaskRuleLength = 10;
+            while (qccTaskRuleLength-- > 1) {
+
+                var name = "QCC_TASK_MSG_RULE_"+qccTaskRuleLength;
+                var tmplName = name + "_TMPL";
+                $("[name="+tmplName+"]").val(origin[tmplName]);
+        
+                $("[name="+name+"]").val(origin[name]);
+
+            }
+
+            var taskProduceRuleLength = 4;
+            while (taskProduceRuleLength-- > 1) {
+
+                var name = "TASK_PRODUCE_RULE_"+taskProduceRuleLength;
+                var tmplName = name + "_TMPL";
+                $("[name="+tmplName+"]").val(origin[tmplName]);
+        
+                $("[name="+name+"]").val(origin[name]);
+
+            }
+
+            // 设置消息规则开关
+            $(".rule-on").each(function(index, elm){
+                if(origin[$(elm).attr("id")] == 'on'){
+                    $(elm).addClass("btn-success on");
+                    $(elm).text("已开启");
+                }else{
+                    $(elm).addClass("btn-danger");
+                    $(elm).text("已关闭");
+                }
+            })
+            // 消息规则开关
+            $('.rule-on').click(function(){
+                $(this).toggleClass("on");
+                if($(this).hasClass("on")){
+                    $(this).addClass("btn-success");
+                    $(this).removeClass("btn-danger");
+                    $(this).text("已开启");
+                }else{
+                    $(this).removeClass("btn-success");
+                    $(this).addClass("btn-danger");
+                    $(this).text("已关闭");
+                }
+            })
+
+            var form2 = $("form[name='noticeRuleForm']");
+            $().ready(function() {
+                form2.validate({
+                    rules: {
+                        'MSG_RULE_1': {
+                            range: [0, 31]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form2.valid()){
+                            var form2Data = $.unserialize(form2.serialize());
+                            $(".rule-on").each(function(index, elm){
+                                if($(elm).hasClass("on")){
+                                    form2Data[$(elm).attr("id")]  = 'on';
+                                }else{
+                                    form2Data[$(elm).attr("id")]  = 'off';
+                                }
+                            });
+                            submitFormData(form2Data);
+                        }
+                        return false;
+                    }
+                })
+            });
+
+            // 企查查消息规则
+            var form4 = $("form[name='qccNoticeRuleForm']");
+            $().ready(function() {
+                form4.validate({
+                    rules: {
+                        'MSG_RULE_1': {
+                            range: [0, 31]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form4.valid()){
+                            var form4Data = $.unserialize(form4.serialize());
+                            $(".rule-on").each(function(index, elm){
+                                if($(elm).hasClass("on")){
+                                    form4Data[$(elm).attr("id")]  = 'on';
+                                }else{
+                                    form4Data[$(elm).attr("id")]  = 'off';
+                                }
+                            });
+                            submitFormData(form4Data);
+                        }
+                        return false;
+                    }
+                })
+            });
+
+            // 企查查任务产生条件
+            var form5 = $("form[name='qccTaskRuleForm']");
+            $().ready(function() {
+                form5.validate({
+                    rules: {
+                        'MSG_RULE_1': {
+                            range: [0, 31]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form5.valid()){
+                            var form5Data = $.unserialize(form5.serialize());
+                            $(".rule-on").each(function(index, elm){
+                                if($(elm).hasClass("on")){
+                                    form5Data[$(elm).attr("id")]  = 'on';
+                                }else{
+                                    form5Data[$(elm).attr("id")]  = 'off';
+                                }
+                            });
+                            submitFormData(form5Data);
+                        }
+                        return false;
+                    }
+                })
+            });
+            
+            // 任务产生规则
+            var form6 = $("form[name='taskProduceRuleForm']");
+            $().ready(function() {
+                form6.validate({
+                    rules: {
+                        'MSG_RULE_1': {
+                            range: [0, 31]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form6.valid()){
+                            var form6Data = $.unserialize(form6.serialize());
+                            $(".rule-on").each(function(index, elm){
+                                if($(elm).hasClass("on")){
+                                    form6Data[$(elm).attr("id")]  = 'on';
+                                }else{
+                                    form6Data[$(elm).attr("id")]  = 'off';
+                                }
+                            });
+                            submitFormData(form6Data);
+                        }
+                        return false;
+                    }
+                })
+            });
+
+            // 任务产生条件
+            var i = -1;
+            while (++i >= 0 && (origin.hasOwnProperty("ACC_"+i+"_BIZ_TYPE") || origin.hasOwnProperty("ACC_"+i+"_LOAN_AMOUNT_MIN") || origin.hasOwnProperty("ACC_"+i+"_LOAN_AMOUNT_MAX") || origin.hasOwnProperty("ACC_"+i+"_LOAN_CHECK") || origin.hasOwnProperty("ACC_"+i+"_EXPECT_DAY") )) {
+                $("#taskRuleContent").append(template("taskTmpl",{
+                    BIZ_TYPE: origin["ACC_"+i+"_BIZ_TYPE"] || '',
+                    LOAN_AMOUNT_MIN: origin["ACC_"+i+"_LOAN_AMOUNT_MIN"] || '',
+                    LOAN_AMOUNT_MAX: origin["ACC_"+i+"_LOAN_AMOUNT_MAX"] || '',
+                    LOAN_CHECK: origin["ACC_"+i+"_LOAN_CHECK"] || '',
+                    EXPECT_DAY: origin["ACC_"+i+"_EXPECT_DAY"] || '',
+                    // ACC_MODEL: origin["ACC_"+i+"_MODEL"],
+                    ID: "ACC_"+i
+                }))
+                if(i>100){
+                    break;
+                }
+            }
+
+            var form3 = $("form[name='taskRuleContent']");
+            $().ready(function() {
+                form3.validate({
+                    rules: {
+                        'LOAN_AMOUNT_MIN[]': {
+                            digits: true,
+                            range: [0, 99999999999]
+                        },
+                        'LOAN_AMOUNT_MAX[]': {
+                            digits: true,
+                            range: [0, 99999999999]
+                        },
+                        'LOAN_CHECK[]': {
+                            range: [0, 999]
+                        },
+                        'EXPECT_DAY[]': {
+                            range: [0, 999]
+                        }
+                    },
+                    submitHandler:function(){
+                        if(form3.valid()){
+                            var formData = {};
+                            $("#taskRuleContent .rule-item").each(function(index, elm){
+                                formData["ACC_"+index+'_BIZ_TYPE'] = $(elm).find("[name='BIZ_TYPE[]']").val(); // 业务品种分类
+                                formData["ACC_"+index+'_LOAN_AMOUNT_MIN'] = $(elm).find("[name='LOAN_AMOUNT_MIN[]']").val();// 贷款额度(元）
+                                formData["ACC_"+index+'_LOAN_AMOUNT_MAX'] = $(elm).find("[name='LOAN_AMOUNT_MAX[]']").val();// 贷款额度(元）
+                                formData["ACC_"+index+'_LOAN_CHECK'] = $(elm).find("[name='LOAN_CHECK[]']").val(); // 贷款检查时间间隔（月）
+                                formData["ACC_"+index+'_EXPECT_DAY'] = $(elm).find("[name='EXPECT_DAY[]']").val(); // 预提醒时间（天）
+                            })
+                            submitFormData(formData);
+                            return false;
+                        }
+                        return false;
+                    }
+                })
+            });
+        })
+        // getFetch(
+        //     remoteOrigin + '/api/auto/sysvar/getList'
+        //     ,function(origin){
+        //
+        //
+        // })
+        // 选择消息模板
+        eventBind(".handleChoiceNoticeTmpl", function(that){
+            forNoticeTmpl = that.data("for");
+            choiceNoticeTmplIndex = layerOpenIframe({
+                title: "选择消息模板",
+                url: "/htmlsrc/htmllayer/choiceNoticeTmpl.html"
+            })
+        })
+        // 选择消息模板回调
+        function choiceNoticeTmplCallback(tmpl){
+            $("[name='"+forNoticeTmpl+"']").val(tmpl.name);
+            layer.close(choiceNoticeTmplIndex);
+        }
+
+        eventBind("#groupBtn-sys_default_role", function (that) {
+            layerOpenIframe({
+                wp: '80%',
+                btn: true,
+                title: '设置默认角色',
+                url: '/htmlsrc/sysManage/userManage/assignRoles.html?act=sys'
+            })
+        })
+
+
+        function putRoleCallback(roles){
+            checkedRoles = roles;
+            var ids = [];
+            var names = [];
+            roles.forEach(function(role){
+                ids.push(role.id);
+                names.push(role.name);
+            })
+            $("#sys_default_role").val(names.join(","));
+            $("[name='sys_default_role_ids']").val(ids.join(","));
+        }
+
+        function submitFormData(formData){
+            postFetch(
+                remoteOrigin + "/api/auto/sysvar/set"
+                , formData
+                , function () {
+                    $(".btn-primary").removeClass("disabled");
+                    layer.msg("修改成功！");
+                }
+            )
+            // postRemoteData({
+            //     dt: "json",
+            //     confirm: false,
+            //     url:remoteApi.apiSetSysVar,
+            //     data: formData,
+            //     callback:function(){
+            //         $(".btn-primary").removeClass("disabled");
+            //         layer.msg("修改成功！");
+            //     }
+            // })
+        }
+
+        $("#submitRuleForm2").click(function(){
+            $("#taskRuleContent").submit();
+            return false;
+        })
+
+        function checkSubmitForm(){
+            return false;
+        }
+    </script>
+</body>
+</html>

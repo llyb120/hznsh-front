@@ -1,0 +1,88 @@
+<!--#include file="common.html" -->
+<script type="text/html" id="head2">
+    <div class="col-xs-12"style="padding-top: 15px;padding-bottom: 15px;">
+        <div class="col-xs-12" style="text-align: right">
+            单位：万元
+        </div>
+    </div>
+</script>
+
+<script>
+
+    $("#panel-form").html(panelFormRender3({
+        list:[
+            {prop:"LOAN_TERM", label:"贷款期限",type:"select", vals:
+                [
+                    {name:"所有", val:"0"}
+                    ,{name:"1年(含）以下",val:"1"}
+                    ,{name:"1-3年(含)",val:"2"}
+                    ,{name:"3-5年(含)",val:"3"}
+                    ,{name:"5-8年(含)",val:"4"}
+                    ,{name:"8年以上",val:"5"}
+                ]
+            }
+            // { prop: 'LOAN_TERM_MIN', label: '贷款期限最小值'}
+            // , { prop: 'LOAN_TERM_MAX', label: '贷款期限最大值'}
+        ],
+        data: {}
+    }));
+
+    $(function () {
+        layui.use("laydate",function () {
+            layui.each(["year"], function (i,v) {
+                layui.laydate.render({
+                    elem: "#" + v
+                    ,type: "year"
+                });
+            });
+        })
+    });
+
+    //        $(function() {
+    //            $('#start').datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //            $("#end").datepicker({ changeMonth: true, changeYear: true, dateFormat: 'yymmdd' });
+    //        });
+
+    laytableRender({
+        url: remoteOrigin + "/api/report/report_30"
+        , dataType: "json"
+        , page: false
+        , cols: [
+            [
+                {"title":"贷款机构","field":"MAIN_BR_NAME", }
+                , {"title":"逾期30天内","field":"THIRTY",  align:"center"}
+                , {"title":"逾期30-60天","field":"THIRTY_TO_SIXTY",  align:"center"}
+                , {"title":"逾期60-90天","field":"SIXTY_TO_NINETY",  align:"center"}
+                , {"title":"逾期90天以上","field":"NINETY",  align:"center"}
+                , {"title":"总计","field":"TOTAL",  align:"center"}
+            ]
+        ]
+
+    });
+
+    var form = $("form[name='form-search']")
+    form.validate({
+        rules:{
+            // LOAN_TERM_MIN:{
+            //     min:0
+            //     ,required: true
+            // },
+            // LOAN_TERM_MAX:{
+            //     digits:true
+            //     , required: true
+            // }
+        },
+        submitHandler: function () {
+            if(form.valid()){
+                layuiTableReload({
+                    where: form.serialize()
+                });
+            }
+        }
+    })
+
+
+    function checkSubmitForm(){
+        return false;
+    }
+</script>

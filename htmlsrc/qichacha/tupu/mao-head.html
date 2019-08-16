@@ -1,0 +1,87 @@
+<div class="mao-head">
+    <div class="container">
+        <ul class="mao-title breadcrumb" style="background:none;border:none;">
+            <li>
+                <a href="javascript:window.close();"> <img src="./image/ic_reply.png" />&nbsp;<b id="company_name"></b></a>
+            </li>
+        </ul>
+        <ul id="navTab" class="mao-nav">
+            <li class="hrefClass"><a href="javascript:;">企业图谱</a></li>
+            <!--<li><a href="javascript:;">关联图谱</a></li>-->
+            <li class="hrefClass"><a href="javascript:;">股权结构图</a></li>
+            <li class="hrefClass"><a href="javascript:;">股权穿透图</a></li>
+            <li class="hrefClass"><a href="javascript:;">企业对外投资</a></li>
+            <!--<li><a href="javascript:;">疑似实际控制人</a></li>-->
+            <li style="float: right;"><a href="javascript:;" class="btn" id="updateBtn" style="background: orange;color: #fff;padding: 0 8px;" >更新当前模块数据</a></li>
+        </ul>
+    </div>
+</div>
+<script>
+    var companyName = decodeURI(getParam("name"));
+    var keyNo = decodeURI(getParam("keyNo"));
+    var companyKeyNo = decodeURI(getParam("keyNo"));
+    if(keyNo == ""){
+        $.ajax({
+            url: remoteApi.qccECIGetDetailsByName+"?fullName="+companyName,
+            success: function (res) {
+                if(res.success && $.isEmptyObject(res.data) === false){
+                    keyNo = res.data.KeyNo;
+                    companyKeyNo = keyNo;
+                }
+            }
+        })
+    }
+    $("#company_name").html(companyName);
+    $(document).on("click", ".mao-nav li.hrefClass", function () {
+        var urlArr = [
+            "./qiyetupu.html",
+            "./guquanTupu.html",
+            "./guquanchuantou.html",
+            "./guquanTzTupu.html"
+        ];
+        var index = $(this).index();
+        window.location = urlArr[index] + "?keyNo="+keyNo+"&name="+companyName;
+    });
+    if(getParam("iframe")){
+        $(".mao-head").hide();
+        $("document").ready(function () {
+            $(".tupu-toolbar").hide();
+        })
+    }
+
+    $("#updateBtn").click(function () {
+        var that = $(this);
+        that.addClass("disabled");
+        if(that.hasClass("disabled") == false){
+            return false;
+        }
+        if(companyName == ""){
+            layer.msg("公司名获取失败！");
+            return false;
+        }
+        layer.confirm("确定更新当前模块？",function(){
+            that.removeClass("disabled");
+            var loadingIndex;
+            layer.msg("指令发送中...", function () {
+                loadingIndex = layer.load();
+                $.ajax({
+                    url: remoteApi.qccUpdateQccData,
+                    data: {
+                        fullName: companyName,
+                        sign: "04"
+                    },
+                    success: function (res) {
+                        if(res.success){
+                            layer.msg("指令发送成功，请等待相关服务处理！");
+                        }else{
+                            layer.msg("指令发送失败！");
+                        }
+                        layer.close(loadingIndex);
+                    }
+                });
+            });
+        },function () {
+            that.removeClass("disabled");
+        });
+    });
+</script>

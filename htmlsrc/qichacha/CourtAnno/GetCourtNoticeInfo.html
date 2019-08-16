@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 开庭公告详情 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+    <div id="content">
+        <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+            <ul id="myTabs" class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">公告详情</a></li>
+            </ul>
+            <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+                <div role="tabpanel" class="tab-pane  active in" id="home" aria-labelledby="home-tab">
+                    <!-- 基本信息展示 -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/vendor/artTemplate/template-web.js"></script>
+    <script src="/static/vendor/layui/layer/layer.js"></script>
+    <script src="/static/htmljs/global.config.js"></script>
+    <script src="/static/htmljs/utils.js"></script>
+    <script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
+    <script>
+        var id = getParam("id");
+        SuperPost({
+            url: remoteApi.qccCourtAnnoGetCourtNoticeInfo+"?id="+id,
+            success: function(res){
+                if($.isEmptyObject(res.data) || res.success === false){
+                    layErrorMsg("数据获取失败....");
+                    $("#home").html("数据获取失败....");
+                    return false;
+                }
+                var data = res.data || {};
+                var per1 = data["Prosecutor"] || [];
+                var per2 = data["Defendant"] || [];
+                if(per1 && per1 instanceof Array){
+                    per1 = per1.map(function (val) {
+                        return val["Name"];
+                    });
+                    data["Prosecutor"] = per1.join("、");
+                }
+                if(per2 && per2 instanceof Array){
+                    data["Defendant"] = data["Defendant"].map(function (val) {
+                        return val["Name"];
+                    });
+                    data["Defendant"] = data["Defendant"].join("、");
+                }
+                data["OpenTime"] = data["OpenTime"] ? data["OpenTime"] : data["LiAnDate"];
+                $("#home").html(qccTableRender({
+                    cols:[
+                        {title:"案由", field:"CaseReason", spec: true},
+                        {title:"案号", field:"CaseNo"},
+                        {title:"开庭时间", field:"OpenTime"},
+                        {title:"地区", field:"Province"},
+                        {title:"排期日期", field:"ScheduleTime"},
+                        {title:"承办部门", field:"UndertakeDepartment"},
+                        {title:"审判长/主审人", field:"ChiefJudge"},
+                        {title:"公诉人/原告/上诉人/申请人", field:"Prosecutor", spec: true },
+                        {title:"被告/被告人/被上诉人/被申请人", field:"Defendant", spec: true },
+                        {title:"法院", field:"ExecuteGov"},
+                        {title:"法庭", field:"ExecuteUnite"}
+                    ],
+                    data: data
+                }));
+
+            },
+            error:function () {
+                layErrorMsg("数据获取失败....")
+                $("#home").html("数据获取失败....")
+            }
+        });
+
+        $(document).on("click", "a[id^=handleProsecutor],a[id^=handleDefendant]", function () {
+            var id = $(this).data("val");
+            addNavTab("ECIdetail"+name, "企查查-公司详情-"+name, hrefUrl.ECIdetail+id);
+        })
+    </script>
+</body>
+</html>

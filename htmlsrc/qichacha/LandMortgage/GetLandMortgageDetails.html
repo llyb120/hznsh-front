@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> 获取土地抵押详情 </title>
+    <link rel="stylesheet" href="/static/vendor/layui/css/layui.css"/>
+    <script src="/static/vendor/layui/layui.js"></script>
+    <script src="/static/vendor/bootcss/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/static/htmlcss/style.css">
+</head>
+<body>
+<div id="content">
+    <div class="bs-example bs-example-tabs" data-example-id="togglable-tabs">
+        <ul id="myTabs" class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#home" id="home-tab" role="tab" data-toggle="tab" data-controls="home" aria-expanded="true">获取土地抵押详情</a></li>
+        </ul>
+        <div id="myTabContent" class="tab-content" style="padding-top: 10px;">
+            <div role="tabpanel" class="tab-pane  active in" id="home" aria-labelledby="home-tab">
+                <!-- 基本信息展示 -->
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/vendor/artTemplate/template-web.js"></script>
+<script src="/static/vendor/layui/layer/layer.js"></script>
+<script src="/static/htmljs/global.config.js"></script>
+<script src="/static/htmljs/utils.js"></script>
+<!--<script src="../../../tmpl/js/panelTableShow.js"></script>-->
+<script src="/htmlsrc/qichacha/tmpl/eci/qccTable.js"></script>
+<script>
+    var MortgagorName;//土地抵押人名称
+    var MortgagePeople;//土地抵押权人
+    SuperPost({
+        url: remoteApi.qccLandMortgageGetLandMortgageDetails+"?id="+getParam("id"),
+        success: function(res){
+            if(res.success){
+                var data = res.data || {};
+                MortgagorName = data["MortgagorName"];
+                MortgagePeople = data["MortgagePeople"];
+                data["MortgagorName"] = data["MortgagorName"]["Name"];
+                data["MortgagePeople"] = data["MortgagePeople"]["Name"];
+                data["OnBoardStartTime"] = subDateStr(data["OnBoardStartTime"]);
+                data["OnBoardEndTime"] = subDateStr(data["OnBoardEndTime"]);
+                $("#home").html(qccTableRender({
+                    cols:[
+                        {title:"宗地标识", field:"LandSign"},
+                        {title:"宗地编号", field:"LandNo"},
+                        {title:"所在行政区", field:"AdministrativeArea"},
+                        {title:"土地面积（公顷）", field:"Acreage"},
+                        {title:"宗地座落", field:"Address", spec: true},
+                        {title:"土地他项权利人证号", field:"ObligeeNo"},
+                        {title:"土地使用权证号", field:"UsufructNo"},
+                        {title:"土地抵押人名称", field:"MortgagorName"},
+                        {title:"土地抵押人性质", field:"MortgagorNature"},
+                        {title:"土地抵押权人", field:"MortgagePeople"},
+                        {title:"抵押土地用途", field:"MortgagePurpose"},
+                        {title:"抵押土地权属性质与使用权类型", field:"NatureAndType"},
+                        {title:"抵押面积（公顷）", field:"MortgageAcreage"},
+                        {title:"评估金额（万元）", field:"AssessmentPrice"},
+                        {title:"抵押金额（万元）", field:"MortgagePrice"},
+                        {title:"起始日期", field:"OnBoardStartTime"},
+                        {title:"结束日期", field:"OnBoardEndTime"}
+                    ],
+                    data: data
+                }));
+            }else{
+                layErrorMsg("数据获取失败....")
+                $("#home").html("数据获取失败....")
+            }
+        }
+    });
+</script>
+</body>
+</html>

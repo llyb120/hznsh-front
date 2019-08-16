@@ -1,0 +1,45 @@
+    <script type="text/html" class="field_item">
+        {{each fields field}}
+        <li>
+            <input type="checkbox" class="checkboxs" id="{{prefix}}-tyue-checkbox-blue-{{field}}"/>
+            <label for="{{prefix}}-tyue-checkbox-blue-{{field}}"></label>
+            <span>{{field}}</span>
+        </li>
+        {{/each}}
+    </script>
+    <div class="selection-container">
+        <div class="select-box left">
+            <div class="select-box-title">
+                <input type="checkbox" class="checkbox-all" id="checkbox-all1"/>
+                <label for="checkbox-all1"></label>
+                <span>选中字段</span>
+            </div>
+            <div class="select-content">
+                <ul class="unselect-ul selected-fields">
+
+                </ul>
+            </div>
+        </div>
+        <div class="arrows-box">
+            <div class="arrow-btns">
+                <button class="arrow-btn right">
+                    &#8250;
+                </button>
+                <button class="arrow-btn left">
+                    &#8249;
+                </button>
+            </div>
+        </div>
+        <div class="select-box right">
+            <div class="select-box-title">
+                <input type="checkbox" class="checkbox-all" id="checkbox-all2"/>
+                <label for="checkbox-all2"></label>
+                <span>所有字段</span>
+            </div>
+            <div class="select-content">
+                <ul class="selected-ul form-fields">
+
+                </ul>
+            </div>
+        </div>
+    </div>
