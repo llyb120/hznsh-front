@@ -818,6 +818,9 @@ var _menu = [
                             remoteApi.apiRoleDelUsers,
                             remoteApi.apiRoleAddUsers
                         ]
+                    },
+                    {
+
                     }
                 ]
             },
